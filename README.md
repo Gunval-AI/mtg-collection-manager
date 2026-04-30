@@ -7,20 +7,23 @@ Aplicación web para gestionar colecciones de cartas de Magic: The Gathering.
 - Docker
 - Docker Compose
 
+Recomendada la descarga de docker desktop: https://www.docker.com/products/docker-desktop/
+Docker debe estar en ejecución para poder levantar y acceder al proyecto
+
 ## Instalación
 
-1. Clonar el repositorio:
+Clonar el repositorio:
 
-git clone <repo-url>
-cd mtg-collection-manager
+    git clone <repo-url>
+    cd mtg-collection-manager
 
-2. Crear archivo `.env` (copiar desde `.env.example`):
+Crear archivo `.env`:
 
-cp .env.example .env
+    cp .env.example .env
 
-3. Levantar el proyecto:
+Levantar el proyecto:
 
-docker compose up --build
+    docker compose up --build
 
 ## Acceso
 
@@ -28,10 +31,10 @@ docker compose up --build
 
 ## Base de datos
 
-La base de datos se inicializa automáticamente al levantar Docker:
+Se inicializa automáticamente al levantar Docker:
 
-- 01-schema.sql → estructura
-- 02_seed.sql → datos base
+- `01-schema.sql` → estructura
+- `02_seed.sql` → datos base
 
 ## Notas
 
