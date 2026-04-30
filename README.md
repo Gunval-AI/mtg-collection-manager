@@ -2,19 +2,23 @@
 
 Aplicación web para gestionar colecciones de cartas de Magic: The Gathering.
 
+## Stack
+
+- Backend: PHP + Slim 4  
+- Base de datos: MySQL  
+- Frontend: HTML, CSS, JavaScript  
+- Servicio de reconocimiento: Python (FastAPI)  
+- Contenedores: Docker + Docker Compose  
+
 ## Requisitos
 
-- Docker
-- Docker Compose
-
-Recomendada la descarga de docker desktop: https://www.docker.com/products/docker-desktop/
-Docker debe estar en ejecución para poder levantar y acceder al proyecto
+- Docker Desktop (incluye Docker y Docker Compose): https://www.docker.com/products/docker-desktop/
 
 ## Instalación
 
 Clonar el repositorio:
 
-    git clone <repo-url>
+    git clone https://github.com/Gunval-AI/mtg-collection-manager.git
     cd mtg-collection-manager
 
 Crear archivo `.env`:
@@ -27,18 +31,43 @@ Levantar el proyecto:
 
 ## Acceso
 
-- Aplicación: http://localhost:8080/frontend/index.html
+- Frontend: http://localhost:8080/frontend/
+- API (health check): http://localhost:8080
 
 ## Base de datos
 
 Se inicializa automáticamente al levantar Docker:
 
-- `01-schema.sql` → estructura
-- `02_seed.sql` → datos base
+- `01-schema.sql` → estructura  
+- `02_seed.sql` → datos base  
+
+## Funcionalidades principales
+
+- Autenticación de usuarios (registro, login, logout)
+- Gestión de colecciones
+- Gestión de copias de cartas
+- Búsqueda de cartas e impresiones
+- Reconocimiento de cartas mediante imagen
+
+## Arquitectura
+
+El backend sigue una arquitectura por capas:
+
+- Controllers → gestionan las peticiones HTTP  
+- Services → lógica de negocio  
+- Repositories → acceso a base de datos  
+- DTOs → transporte de datos  
 
 ## Notas
 
-- Backend: PHP + Slim 4
-- Base de datos: MySQL
 - Configuración mediante `.env`
-- Servicio de reconocimiento (Python) incluido en Docker
+- El servicio de reconocimiento funciona como microservicio independiente
+- La base de datos se crea automáticamente al iniciar Docker
+
+## Ejecución desde cero
+
+1. Instalar Docker Desktop  
+2. Clonar el repositorio  
+3. Crear `.env`  
+4. Ejecutar `docker compose up --build`  
+5. Acceder a http://localhost:8080/frontend/
