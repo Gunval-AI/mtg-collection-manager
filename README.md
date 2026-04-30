@@ -27,7 +27,7 @@ Levantar el proyecto:
 
 ## Acceso
 
-- Aplicación: http://localhost:8080
+- Aplicación: http://localhost:8080/frontend/index.html
 
 ## Base de datos
 
