@@ -1,0 +1,9 @@
+.env
+/vendor
+/node_modules
+/mysql_data
+
+recognition-service/.venv
+recognition-service/__pycache__/
+recognition-service/**/__pycache__/
+recognition-service/debug_output/

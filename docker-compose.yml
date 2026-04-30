@@ -1,0 +1,41 @@
+services:
+  apache-php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: mtg-apache-php
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+      - recognition-service
+
+  recognition-service:
+    build:
+      context: ./recognition-service
+      dockerfile: Dockerfile
+    container_name: mtg-recognition-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./recognition-service:/app
+
+  mysql:
+    image: mysql:8.0
+    container_name: mtg-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mtg_collection_manager
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql_data:
