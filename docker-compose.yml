@@ -8,6 +8,7 @@ services:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - php_vendor:/var/www/html/vendor
     env_file:
       - .env
     depends_on:
@@ -39,3 +40,4 @@ services:
 
 volumes:
   mysql_data:
+  php_vendor:
