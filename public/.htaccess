@@ -1,7 +1,7 @@
 RewriteEngine On
 
-# Redirigir raíz a /frontend/
-RewriteRule ^$ frontend/ [R=302,L]
+# Redirigir raíz del dominio a /frontend/
+RewriteRule ^$ /frontend/ [R=302,L]
 
 # Mantener routing de Slim
 RewriteCond %{REQUEST_FILENAME} !-f
