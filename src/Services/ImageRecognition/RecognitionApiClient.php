@@ -13,7 +13,13 @@ class RecognitionApiClient
 
     public function __construct(?string $baseUrl = null)
     {
-        $this->baseUrl = rtrim($baseUrl, '/');
+        $resolvedBaseUrl = $baseUrl ?: getenv('PYTHON_SERVICE_URL');
+
+        if ($resolvedBaseUrl === false || trim($resolvedBaseUrl) === '') {
+            throw new RuntimeException('PYTHON_SERVICE_URL no está configurada.');
+        }
+
+        $this->baseUrl = rtrim($resolvedBaseUrl, '/');
     }
 
     public function analyzeCardImage(
