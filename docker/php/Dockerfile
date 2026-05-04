@@ -9,13 +9,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     && docker-php-ext-install pdo pdo_mysql \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_prefork.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_prefork.conf \
-    && a2enmod mpm_prefork rewrite \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,7 +22,11 @@ COPY . /var/www/html
 RUN composer install --no-interaction --prefer-dist
 
 COPY docker/php/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/php/start.sh /usr/local/bin/start.sh
 
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 80
+
+CMD ["start.sh"]
