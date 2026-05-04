@@ -1,7 +1,9 @@
 RewriteEngine On
 
-# RewriteBase /mtg-collection-manager/public/
+# Redirigir raíz a frontend
+RewriteRule ^$ frontend/index.html [L]
 
+# Mantener routing de Slim
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
