@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     && docker-php-ext-install pdo pdo_mysql \
-    && a2enmod rewrite \
+    && a2dismod mpm_event mpm_worker || true \
+    && a2enmod mpm_prefork rewrite \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
