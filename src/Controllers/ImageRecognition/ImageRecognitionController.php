@@ -64,9 +64,7 @@ class ImageRecognitionController
         } catch (Throwable $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'message' => 'Error interno al reconocer la carta.'
             ], JSON_UNESCAPED_UNICODE));
 
             return $response
