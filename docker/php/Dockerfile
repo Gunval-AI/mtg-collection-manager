@@ -19,7 +19,8 @@ RUN echo "upload_max_filesize=20M" > /usr/local/etc/php/conf.d/uploads.ini \
 
 COPY . /var/www/html
 
-RUN composer install --no-interaction --prefer-dist
+RUN composer install --no-interaction --prefer-dist \
+    && composer dump-autoload -o
 
 COPY docker/php/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php/start.sh /usr/local/bin/start.sh
