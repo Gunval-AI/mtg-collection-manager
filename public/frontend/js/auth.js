@@ -105,9 +105,27 @@ export function renderLogin(container) {
         body: JSON.stringify(payload)
       });
 
+      if (isRegisterMode) {
+        isRegisterMode = false;
+
+        title.textContent = "Iniciar sesión";
+        usernameInput.hidden = true;
+        usernameInput.required = false;
+        usernameInput.value = "";
+        submitButton.textContent = "Entrar";
+        toggleAuthMode.innerHTML = `¿No tienes cuenta? <span>Regístrate</span>`;
+
+        message.textContent = "Cuenta creada correctamente. Ahora inicia sesión.";
+        message.className = "message success";
+
+        form.reset();
+        return;
+      }
+
       appState.user = response.data;
       updateAuthUI();
       navigateTo("home");
+
     } catch (error) {
       message.textContent = error.message;
       message.className = "message error";
