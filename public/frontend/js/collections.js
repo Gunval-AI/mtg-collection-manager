@@ -1,4 +1,5 @@
 import { apiFetch } from "./api.js";
+import { openPrintDetailModal } from "./app.js";
 
 let currentCollection = null;
 
@@ -154,9 +155,12 @@ function renderCollectionSummary(container, prints, collectionId) {
     return;
   }
 
-  container.innerHTML = prints.map((print) => `
+  container.innerHTML = prints.map((print, index) => `
     <article class="summary-card" data-print-id="${print.impresionId}">
       <img 
+        class="clickable-print-image"
+        data-action="open-print-detail"
+        data-print-index="${index}"
         src="${print.imagenSmall || print.imagenNormal || './assets/card-placeholder.png'}" 
         alt="${print.nombreCarta}" 
       />
@@ -208,6 +212,15 @@ function renderCollectionSummary(container, prints, collectionId) {
       const printId = card.dataset.printId;
 
       await openAddCopyToCollectionModal(collectionId, printId);
+    });
+  });
+
+  container.querySelectorAll("[data-action='open-print-detail']").forEach((image) => {
+    image.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const printIndex = Number(event.target.dataset.printIndex);
+      openPrintDetailModal(prints[printIndex]);
     });
   });
 }

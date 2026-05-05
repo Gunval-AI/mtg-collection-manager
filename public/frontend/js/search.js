@@ -1,5 +1,5 @@
 import { apiFetch } from "./api.js";
-import { appState } from "./app.js";
+import { appState, openPrintDetailModal } from "./app.js";
 
 function openModal(overlay) {
   document.querySelector(".modal-overlay")?.remove();
@@ -57,9 +57,12 @@ function renderPrintResults(container, prints) {
     return;
   }
 
-  container.innerHTML = prints.map((print) => `
+  container.innerHTML = prints.map((print, index) => `
     <article class="print-card" data-print-id="${print.id}">
       <img 
+        class="clickable-print-image"
+        data-action="open-print-detail"
+        data-print-index="${index}"
         src="${print.imagenSmall || print.imagenNormal || './assets/card-placeholder.png'}" 
         alt="${print.nombreCarta}" 
       />
@@ -87,6 +90,15 @@ function renderPrintResults(container, prints) {
       const printId = card.dataset.printId;
 
       await openSearchAddCopyModal(printId);
+    });
+  });
+
+  container.querySelectorAll("[data-action='open-print-detail']").forEach((image) => {
+    image.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const printIndex = Number(event.target.dataset.printIndex);
+      openPrintDetailModal(prints[printIndex]);
     });
   });
 }

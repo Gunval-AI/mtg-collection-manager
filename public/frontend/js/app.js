@@ -53,3 +53,73 @@ export function updateAuthUI() {
     el.hidden = !!appState.user;
   });
 }
+
+function openModal(overlay) {
+  document.querySelector(".modal-overlay")?.remove();
+  document.body.appendChild(overlay);
+  document.body.classList.add("modal-open");
+}
+
+function closeModal(overlay) {
+  overlay.remove();
+  document.body.classList.remove("modal-open");
+}
+
+export function openPrintDetailModal(print) {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+
+  const imageUrl = print.imagenNormal || print.imagenSmall || "./assets/card-placeholder.png";
+  const scryfallLink = print.scryfallUri
+    ? `
+      <a 
+        href="${print.scryfallUri}" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="button-link"
+      >
+        Ver en Scryfall
+      </a>
+    `
+    : "";
+
+  overlay.innerHTML = `
+    <div class="app-modal print-detail-modal">
+      <div class="modal-header">
+        <h2>${print.nombreCarta}</h2>
+        <button type="button" class="secondary-button small-button" data-action="close-modal">
+          ✕
+        </button>
+      </div>
+
+      <div class="print-detail-content">
+        <img 
+          class="print-detail-image" 
+          src="${imageUrl}" 
+          alt="${print.nombreCarta}" 
+        />
+
+        <div class="print-detail-info">
+          <p><strong>Edición:</strong> ${print.nombreEdicion || "No disponible"}</p>
+          <p><strong>Código:</strong> ${print.codigoEdicion || "No disponible"}</p>
+          <p><strong>Número:</strong> ${print.numeroColeccion || "No disponible"}</p>
+          <p><strong>Rareza:</strong> ${print.rareza || "No disponible"}</p>
+
+          ${scryfallLink}
+        </div>
+      </div>
+    </div>
+  `;
+
+  openModal(overlay);
+
+  const handleCloseModal = () => closeModal(overlay);
+
+  overlay.querySelector("[data-action='close-modal']").addEventListener("click", handleCloseModal);
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      handleCloseModal();
+    }
+  });
+}
