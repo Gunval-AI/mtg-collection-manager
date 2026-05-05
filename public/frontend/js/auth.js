@@ -20,7 +20,7 @@ export function renderLogin(container) {
 
   container.innerHTML = `
     <section class="panel auth-panel">
-      <h1 id="authTitle">Iniciar sesión</h1>
+      <h1 id="authTitle">Inicio de sesión</h1>
       <p class="auth-subtitle">Accede para gestionar tus colecciones de Magic.</p>
 
       <form id="loginForm" class="form">
@@ -35,7 +35,7 @@ export function renderLogin(container) {
         <input name="email" type="email" placeholder="Email" required />
         <input name="password" type="password" placeholder="Contraseña" required />
 
-        <button type="submit">Entrar</button>
+        <button type="submit">Iniciar sesión</button>
       </form>
 
       <p id="loginMessage" class="message"></p>
@@ -64,13 +64,13 @@ export function renderLogin(container) {
       usernameInput.hidden = false;
       usernameInput.required = true;
       submitButton.textContent = "Registrarse";
-      toggleAuthMode.innerHTML = `¿Ya tienes cuenta? <span>Inicia sesión</span>`;
+      toggleAuthMode.innerHTML = `¿Ya tienes cuenta? <span>Inicio de sesión</span>`;
     } else {
-      title.textContent = "Iniciar sesión";
+      title.textContent = "Inicio de sesión";
       usernameInput.hidden = true;
       usernameInput.required = false;
       usernameInput.value = "";
-      submitButton.textContent = "Entrar";
+      submitButton.textContent = "Iniciar sesión";
       toggleAuthMode.innerHTML = `¿No tienes cuenta? <span>Regístrate</span>`;
     }
   });
@@ -84,7 +84,7 @@ export function renderLogin(container) {
     message.className = "message";
 
     submitButton.disabled = true;
-    submitButton.textContent = isRegisterMode ? "Registrando..." : "Entrando...";
+    submitButton.textContent = isRegisterMode ? "Registrando..." : "Iniciando...";
 
     try {
       const endpoint = isRegisterMode ? "/register" : "/login";
@@ -108,11 +108,11 @@ export function renderLogin(container) {
       if (isRegisterMode) {
         isRegisterMode = false;
 
-        title.textContent = "Iniciar sesión";
+        title.textContent = "Inicio de sesión";
         usernameInput.hidden = true;
         usernameInput.required = false;
         usernameInput.value = "";
-        submitButton.textContent = "Entrar";
+        submitButton.textContent = "Iniciar sesión";
         toggleAuthMode.innerHTML = `¿No tienes cuenta? <span>Regístrate</span>`;
 
         message.textContent = "Cuenta creada correctamente. Ahora inicia sesión.";
@@ -125,13 +125,12 @@ export function renderLogin(container) {
       appState.user = response.data;
       updateAuthUI();
       navigateTo("home");
-
     } catch (error) {
       message.textContent = error.message;
       message.className = "message error";
     } finally {
       submitButton.disabled = false;
-      submitButton.textContent = isRegisterMode ? "Registrarse" : "Entrar";
+      submitButton.textContent = isRegisterMode ? "Registrarse" : "Iniciar sesión";
     }
   });
 }
