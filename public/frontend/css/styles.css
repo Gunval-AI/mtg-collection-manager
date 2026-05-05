@@ -332,6 +332,22 @@ select:focus {
   gap: 16px;
 }
 
+.collection-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: #cbd5e1;
+}
+
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .summary-card {
   display: grid;
   grid-template-columns: 90px 1fr auto;
@@ -721,5 +737,10 @@ button,
 
   .print-detail-modal {
     max-width: 520px;
+  }
+
+  .collection-pagination {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

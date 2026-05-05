@@ -3,6 +3,14 @@ import { openPrintDetailModal } from "./app.js";
 
 let currentCollection = null;
 
+const COLLECTION_PAGE_SIZE = 20;
+
+let collectionSummaryState = {
+  prints: [],
+  collectionId: null,
+  currentPage: 1
+};
+
 function openModal(overlay) {
   document.querySelector(".modal-overlay")?.remove();
   document.body.appendChild(overlay);
@@ -131,7 +139,7 @@ async function renderCollectionDetail(collectionId, collectionName) {
         </div>
       </div>
 
-      <div id="collectionSummary" class="summary-grid">
+      <div id="collectionSummary">
         <div class="loading">Cargando colección...</div>
       </div>
     </section>
@@ -143,18 +151,90 @@ async function renderCollectionDetail(collectionId, collectionName) {
 
   try {
     const response = await apiFetch(`/collections/${collectionId}/summary`);
-    renderCollectionSummary(document.getElementById("collectionSummary"), response.data, collectionId);
+
+    collectionSummaryState = {
+      prints: response.data,
+      collectionId,
+      currentPage: 1
+    };
+
+    renderCollectionSummaryPage();
   } catch (error) {
     document.getElementById("collectionSummary").innerHTML = `<p class="error">${error.message}</p>`;
   }
 }
 
-function renderCollectionSummary(container, prints, collectionId) {
+function renderCollectionSummaryPage() {
+  const container = document.getElementById("collectionSummary");
+  const { prints, collectionId, currentPage } = collectionSummaryState;
+
   if (!prints.length) {
     container.innerHTML = `<p class="empty-state">Esta colección todavía no tiene cartas.</p>`;
     return;
   }
 
+  const totalPages = Math.ceil(prints.length / COLLECTION_PAGE_SIZE);
+  const startIndex = (currentPage - 1) * COLLECTION_PAGE_SIZE;
+  const endIndex = startIndex + COLLECTION_PAGE_SIZE;
+  const visiblePrints = prints.slice(startIndex, endIndex);
+
+  container.innerHTML = `
+    <div class="collection-pagination">
+      <span>
+        Mostrando ${startIndex + 1}-${Math.min(endIndex, prints.length)} de ${prints.length} impresiones
+      </span>
+
+      <div class="pagination-actions">
+        <button class="secondary-button small-button" data-action="previous-page" ${currentPage === 1 ? "disabled" : ""}>
+          Anterior
+        </button>
+
+        <span>Página ${currentPage} de ${totalPages}</span>
+
+        <button class="secondary-button small-button" data-action="next-page" ${currentPage === totalPages ? "disabled" : ""}>
+          Siguiente
+        </button>
+      </div>
+    </div>
+
+    <div id="collectionSummaryGrid" class="summary-grid"></div>
+  `;
+
+  renderCollectionSummary(document.getElementById("collectionSummaryGrid"), visiblePrints, collectionId);
+
+  container.querySelector("[data-action='previous-page']")?.addEventListener("click", () => {
+    if (collectionSummaryState.currentPage > 1) {
+      collectionSummaryState.currentPage -= 1;
+      renderCollectionSummaryPage();
+    }
+  });
+
+  container.querySelector("[data-action='next-page']")?.addEventListener("click", () => {
+    if (collectionSummaryState.currentPage < totalPages) {
+      collectionSummaryState.currentPage += 1;
+      renderCollectionSummaryPage();
+    }
+  });
+}
+
+async function reloadCurrentCollectionSummary() {
+  const currentPage = collectionSummaryState.currentPage;
+  const scrollY = window.scrollY;
+
+  const response = await apiFetch(`/collections/${currentCollection.id}/summary`);
+
+  collectionSummaryState = {
+    prints: response.data,
+    collectionId: currentCollection.id,
+    currentPage
+  };
+
+  renderCollectionSummaryPage();
+
+  window.scrollTo(0, scrollY);
+}
+
+function renderCollectionSummary(container, prints, collectionId) {
   container.innerHTML = prints.map((print, index) => `
     <article class="summary-card" data-print-id="${print.impresionId}">
       <img 
@@ -283,7 +363,7 @@ function renderCopyGroups(container, copies, collectionId, printId) {
           })
         });
 
-        await renderCollectionDetail(currentCollection.id, currentCollection.nombre);
+        await reloadCurrentCollectionSummary();
       } catch (error) {
         alert(error.message);
       } finally {
@@ -311,7 +391,7 @@ function renderCopyGroups(container, copies, collectionId, printId) {
           method: "DELETE"
         });
 
-        await renderCollectionDetail(currentCollection.id, currentCollection.nombre);
+        await reloadCurrentCollectionSummary();
       } catch (error) {
         alert(error.message);
       } finally {
@@ -629,7 +709,7 @@ async function openAddCopyToCollectionModal(collectionId, printId) {
         message.textContent = "Copia añadida correctamente.";
         message.className = "message success";
 
-        await renderCollectionDetail(currentCollection.id, currentCollection.nombre);
+        await reloadCurrentCollectionSummary();
 
         setTimeout(() => {
           handleCloseModal();
