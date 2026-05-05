@@ -538,6 +538,42 @@ body.modal-open {
   box-shadow: 0 8px 18px rgba(250, 204, 21, 0.25);
 }
 
+.collection-search-modal {
+  max-width: 760px;
+}
+
+.collection-search-results {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.collection-search-result {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 14px;
+  align-items: center;
+  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.collection-search-result img {
+  width: 80px;
+  border-radius: 9px;
+}
+
+.collection-search-result h3 {
+  margin: 0 0 4px 0;
+  color: #f8fafc;
+}
+
+.collection-search-result p {
+  margin: 4px 0;
+  color: #9ca3af;
+}
+
 /* RECONOCIMIENTO */
 
 .recognition-card-content {
@@ -753,5 +789,13 @@ button,
 
   .collection-filters {
     grid-template-columns: 1fr;
+  }
+
+  .collection-search-result {
+    grid-template-columns: 64px 1fr;
+  }
+
+.collection-search-result img {
+    width: 64px;
   }
 }

@@ -155,6 +155,10 @@ async function renderCollectionDetail(collectionId, collectionName) {
           <h1>${collectionName}</h1>
           <p>Impresiones agrupadas dentro de esta colección.</p>
         </div>
+
+        <button id="openCollectionSearchModalBtn">
+          Añadir carta
+        </button>
       </div>
 
       <div id="collectionSummary">
@@ -165,6 +169,10 @@ async function renderCollectionDetail(collectionId, collectionName) {
 
   document.getElementById("backToCollectionsBtn").addEventListener("click", () => {
     renderCollections(main);
+  });
+
+  document.getElementById("openCollectionSearchModalBtn").addEventListener("click", () => {
+    openCollectionSearchModal();
   });
 
   try {
@@ -736,7 +744,113 @@ function openDeleteCollectionModal(collection) {
   });
 }
 
-async function openAddCopyToCollectionModal(collectionId, printId) {
+function openCollectionSearchModal() {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+
+  overlay.innerHTML = `
+    <div class="app-modal collection-search-modal">
+      <div class="modal-header">
+        <h2>Añadir carta</h2>
+        <button type="button" class="secondary-button small-button" data-action="close-modal">✕</button>
+      </div>
+
+      <form id="collectionSearchForm" class="search-box">
+        <input name="name" type="text" placeholder="Buscar carta..." required />
+        <button type="submit">Buscar</button>
+      </form>
+
+      <div id="collectionSearchResults" class="collection-search-results">
+        <p class="empty-state">Busca una carta para añadirla a esta colección.</p>
+      </div>
+    </div>
+  `;
+
+  openModal(overlay);
+
+  const handleCloseModal = () => closeModal(overlay);
+
+  overlay.querySelector("[data-action='close-modal']").addEventListener("click", handleCloseModal);
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      handleCloseModal();
+    }
+  });
+
+  const form = overlay.querySelector("#collectionSearchForm");
+  const resultsContainer = overlay.querySelector("#collectionSearchResults");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const submitButton = form.querySelector("button[type='submit']");
+    const name = new FormData(form).get("name");
+
+    resultsContainer.innerHTML = `<div class="loading">Buscando cartas...</div>`;
+    submitButton.disabled = true;
+    submitButton.textContent = "Buscando...";
+
+    try {
+      const response = await apiFetch(`/prints/search?name=${encodeURIComponent(name)}`);
+      renderCollectionSearchResults(resultsContainer, response.data, handleCloseModal);
+    } catch (error) {
+      resultsContainer.innerHTML = `<p class="error">${error.message}</p>`;
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Buscar";
+    }
+  });
+}
+
+function renderCollectionSearchResults(container, prints, handleCloseModal) {
+  if (!prints.length) {
+    container.innerHTML = `<p class="empty-state">No se encontraron resultados.</p>`;
+    return;
+  }
+
+  container.innerHTML = prints.map((print, index) => `
+    <article class="collection-search-result" data-print-id="${print.id}">
+      <img 
+        class="clickable-print-image"
+        data-action="open-print-detail"
+        data-print-index="${index}"
+        src="${print.imagenSmall || print.imagenNormal || './assets/card-placeholder.png'}" 
+        alt="${print.nombreCarta}" 
+      />
+
+      <div>
+        <h3>${print.nombreCarta}</h3>
+        <p>${print.nombreEdicion}</p>
+        <p>${print.codigoEdicion} · #${print.numeroColeccion} · ${print.rareza}</p>
+
+        <button class="small-button" data-action="add-search-result-copy">
+          Añadir copia
+        </button>
+      </div>
+    </article>
+  `).join("");
+
+  container.querySelectorAll("[data-action='open-print-detail']").forEach((image) => {
+    image.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const printIndex = Number(event.target.dataset.printIndex);
+      openPrintDetailModal(prints[printIndex]);
+    });
+  });
+
+  container.querySelectorAll("[data-action='add-search-result-copy']").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      const card = event.target.closest(".collection-search-result");
+      const printId = card.dataset.printId;
+
+      await openAddCopyToCollectionModal(currentCollection.id, printId, handleCloseModal);
+    });
+  });
+}
+
+async function openAddCopyToCollectionModal(collectionId, printId, afterSuccess = null) {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
 
@@ -843,6 +957,10 @@ async function openAddCopyToCollectionModal(collectionId, printId) {
 
         setTimeout(() => {
           handleCloseModal();
+
+          if (afterSuccess) {
+            afterSuccess();
+          }
         }, 600);
       } catch (error) {
         message.textContent = error.message;
