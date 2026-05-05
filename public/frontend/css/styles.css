@@ -416,6 +416,13 @@ select:focus {
   flex-wrap: wrap;
 }
 
+.collection-filters {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
 /* MODAL */
 
 body.modal-open {
@@ -742,5 +749,9 @@ button,
   .collection-pagination {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .collection-filters {
+    grid-template-columns: 1fr;
   }
 }

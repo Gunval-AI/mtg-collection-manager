@@ -8,18 +8,36 @@ const COLLECTION_PAGE_SIZE = 20;
 let collectionSummaryState = {
   prints: [],
   collectionId: null,
-  currentPage: 1
+  currentPage: 1,
+  searchTerm: "",
+  rarityFilter: "",
+  editionFilter: ""
 };
 
 function openModal(overlay) {
   document.querySelector(".modal-overlay")?.remove();
   document.body.appendChild(overlay);
   document.body.classList.add("modal-open");
+
+  const handleEsc = (event) => {
+    if (event.key === "Escape") {
+      closeModal(overlay);
+      document.removeEventListener("keydown", handleEsc);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+
+  overlay._handleEsc = handleEsc;
 }
 
 function closeModal(overlay) {
   overlay.remove();
   document.body.classList.remove("modal-open");
+
+  if (overlay._handleEsc) {
+    document.removeEventListener("keydown", overlay._handleEsc);
+  }
 }
 
 export async function renderCollections(container) {
@@ -155,7 +173,10 @@ async function renderCollectionDetail(collectionId, collectionName) {
     collectionSummaryState = {
       prints: response.data,
       collectionId,
-      currentPage: 1
+      currentPage: 1,
+      searchTerm: "",
+      rarityFilter: "",
+      editionFilter: ""
     };
 
     renderCollectionSummaryPage();
@@ -164,43 +185,146 @@ async function renderCollectionDetail(collectionId, collectionName) {
   }
 }
 
+function getFilteredPrints() {
+  const searchTerm = collectionSummaryState.searchTerm.trim().toLowerCase();
+  const rarityFilter = collectionSummaryState.rarityFilter;
+  const editionFilter = collectionSummaryState.editionFilter;
+
+  return collectionSummaryState.prints.filter((print) => {
+    const searchableText = [
+      print.nombreCarta,
+      print.nombreEdicion,
+      print.codigoEdicion,
+      print.numeroColeccion,
+      print.rareza
+    ].join(" ").toLowerCase();
+
+    const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
+    const matchesRarity = !rarityFilter || print.rareza === rarityFilter;
+    const matchesEdition = !editionFilter || print.codigoEdicion === editionFilter;
+
+    return matchesSearch && matchesRarity && matchesEdition;
+  });
+}
+
+function getAvailableEditions() {
+  const editions = new Map();
+
+  collectionSummaryState.prints.forEach((print) => {
+    if (print.codigoEdicion) {
+      editions.set(print.codigoEdicion, print.nombreEdicion || print.codigoEdicion);
+    }
+  });
+
+  return Array.from(editions.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+}
+
+function getAvailableRarities() {
+  return Array.from(
+    new Set(collectionSummaryState.prints.map((print) => print.rareza).filter(Boolean))
+  ).sort();
+}
+
 function renderCollectionSummaryPage() {
   const container = document.getElementById("collectionSummary");
-  const { prints, collectionId, currentPage } = collectionSummaryState;
+  const { prints, collectionId, currentPage, searchTerm, rarityFilter, editionFilter } = collectionSummaryState;
 
   if (!prints.length) {
     container.innerHTML = `<p class="empty-state">Esta colección todavía no tiene cartas.</p>`;
     return;
   }
 
-  const totalPages = Math.ceil(prints.length / COLLECTION_PAGE_SIZE);
-  const startIndex = (currentPage - 1) * COLLECTION_PAGE_SIZE;
+  const filteredPrints = getFilteredPrints();
+  const totalPages = Math.max(1, Math.ceil(filteredPrints.length / COLLECTION_PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  collectionSummaryState.currentPage = safeCurrentPage;
+
+  const startIndex = (safeCurrentPage - 1) * COLLECTION_PAGE_SIZE;
   const endIndex = startIndex + COLLECTION_PAGE_SIZE;
-  const visiblePrints = prints.slice(startIndex, endIndex);
+  const visiblePrints = filteredPrints.slice(startIndex, endIndex);
+  const editions = getAvailableEditions();
+  const rarities = getAvailableRarities();
 
   container.innerHTML = `
-    <div class="collection-pagination">
-      <span>
-        Mostrando ${startIndex + 1}-${Math.min(endIndex, prints.length)} de ${prints.length} impresiones
-      </span>
+    <div class="collection-filters">
+      <input 
+        type="search" 
+        placeholder="Buscar en esta colección..." 
+        value="${searchTerm}"
+        data-action="filter-search"
+      />
 
-      <div class="pagination-actions">
-        <button class="secondary-button small-button" data-action="previous-page" ${currentPage === 1 ? "disabled" : ""}>
-          Anterior
-        </button>
+      <select data-action="filter-rarity">
+        <option value="">Todas las rarezas</option>
+        ${rarities.map((rarity) => `
+          <option value="${rarity}" ${rarityFilter === rarity ? "selected" : ""}>
+            ${rarity}
+          </option>
+        `).join("")}
+      </select>
 
-        <span>Página ${currentPage} de ${totalPages}</span>
-
-        <button class="secondary-button small-button" data-action="next-page" ${currentPage === totalPages ? "disabled" : ""}>
-          Siguiente
-        </button>
-      </div>
+      <select data-action="filter-edition">
+        <option value="">Todas las ediciones</option>
+        ${editions.map(([code, name]) => `
+          <option value="${code}" ${editionFilter === code ? "selected" : ""}>
+            ${name} (${code})
+          </option>
+        `).join("")}
+      </select>
     </div>
 
-    <div id="collectionSummaryGrid" class="summary-grid"></div>
+    ${filteredPrints.length ? `
+      <div class="collection-pagination">
+        <span>
+          Mostrando ${startIndex + 1}-${Math.min(endIndex, filteredPrints.length)} de ${filteredPrints.length} impresiones
+        </span>
+
+        <div class="pagination-actions">
+          <button class="secondary-button small-button" data-action="previous-page" ${safeCurrentPage === 1 ? "disabled" : ""}>
+            Anterior
+          </button>
+
+          <span>Página ${safeCurrentPage} de ${totalPages}</span>
+
+          <button class="secondary-button small-button" data-action="next-page" ${safeCurrentPage === totalPages ? "disabled" : ""}>
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <div id="collectionSummaryGrid" class="summary-grid"></div>
+    ` : `
+      <p class="empty-state">No hay cartas que coincidan con los filtros.</p>
+    `}
   `;
 
-  renderCollectionSummary(document.getElementById("collectionSummaryGrid"), visiblePrints, collectionId);
+  container.querySelector("[data-action='filter-search']").addEventListener("input", (event) => {
+    collectionSummaryState.searchTerm = event.target.value;
+    collectionSummaryState.currentPage = 1;
+
+    renderCollectionSummaryPage();
+
+    const input = document.querySelector("[data-action='filter-search']");
+    input?.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  });
+
+  container.querySelector("[data-action='filter-rarity']").addEventListener("change", (event) => {
+    collectionSummaryState.rarityFilter = event.target.value;
+    collectionSummaryState.currentPage = 1;
+    renderCollectionSummaryPage();
+  });
+
+  container.querySelector("[data-action='filter-edition']").addEventListener("change", (event) => {
+    collectionSummaryState.editionFilter = event.target.value;
+    collectionSummaryState.currentPage = 1;
+    renderCollectionSummaryPage();
+  });
+
+  if (filteredPrints.length) {
+    renderCollectionSummary(document.getElementById("collectionSummaryGrid"), visiblePrints, collectionId);
+  }
 
   container.querySelector("[data-action='previous-page']")?.addEventListener("click", () => {
     if (collectionSummaryState.currentPage > 1) {
@@ -219,6 +343,9 @@ function renderCollectionSummaryPage() {
 
 async function reloadCurrentCollectionSummary() {
   const currentPage = collectionSummaryState.currentPage;
+  const searchTerm = collectionSummaryState.searchTerm;
+  const rarityFilter = collectionSummaryState.rarityFilter;
+  const editionFilter = collectionSummaryState.editionFilter;
   const scrollY = window.scrollY;
 
   const response = await apiFetch(`/collections/${currentCollection.id}/summary`);
@@ -226,7 +353,10 @@ async function reloadCurrentCollectionSummary() {
   collectionSummaryState = {
     prints: response.data,
     collectionId: currentCollection.id,
-    currentPage
+    currentPage,
+    searchTerm,
+    rarityFilter,
+    editionFilter
   };
 
   renderCollectionSummaryPage();

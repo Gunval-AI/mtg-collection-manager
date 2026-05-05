@@ -5,11 +5,26 @@ function openModal(overlay) {
   document.querySelector(".modal-overlay")?.remove();
   document.body.appendChild(overlay);
   document.body.classList.add("modal-open");
+
+  const handleEsc = (event) => {
+    if (event.key === "Escape") {
+      closeModal(overlay);
+      document.removeEventListener("keydown", handleEsc);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+
+  overlay._handleEsc = handleEsc;
 }
 
 function closeModal(overlay) {
   overlay.remove();
   document.body.classList.remove("modal-open");
+
+  if (overlay._handleEsc) {
+    document.removeEventListener("keydown", overlay._handleEsc);
+  }
 }
 
 export function renderHome(container) {
