@@ -68,7 +68,7 @@ docker compose down
 docker compose up --build
 ```
 
-Si además se quiere eliminar la base de datos y volver al estado incial:
+* Si además se quiere eliminar la base de datos y volver al estado incial:
 
 ```
 docker compose down -v
