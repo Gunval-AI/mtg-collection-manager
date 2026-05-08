@@ -8,6 +8,10 @@ export async function renderRecognition(container) {
           <h1>Subir foto</h1>
           <p>Sube una imagen de una carta y el sistema intentará reconocerla.</p>
         </div>
+
+        <button type="button" class="secondary-button" id="openRecognitionGuideBtn">
+          Guía de uso
+        </button>
       </div>
 
       <form id="recognitionForm" class="form">
@@ -45,6 +49,10 @@ export async function renderRecognition(container) {
   `;
 
   await loadRecognitionFormOptions();
+
+  document.getElementById("openRecognitionGuideBtn").addEventListener("click", () => {
+    openRecognitionGuideModal();
+  });
 
   document.getElementById("recognitionForm").addEventListener("submit", handleRecognitionSubmit);
 }
@@ -308,5 +316,105 @@ function renderCandidateResults(container, data, copyOptions) {
         });
       }
     });
+  });
+}
+
+function openModal(overlay) {
+  document.querySelector(".modal-overlay")?.remove();
+  document.body.appendChild(overlay);
+  document.body.classList.add("modal-open");
+
+  const handleEsc = (event) => {
+    if (event.key === "Escape") {
+      closeModal(overlay);
+    }
+  };
+
+  document.addEventListener("keydown", handleEsc);
+  overlay._handleEsc = handleEsc;
+}
+
+function closeModal(overlay) {
+  overlay.remove();
+  document.body.classList.remove("modal-open");
+
+  if (overlay._handleEsc) {
+    document.removeEventListener("keydown", overlay._handleEsc);
+  }
+}
+
+function openRecognitionGuideModal() {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+
+  overlay.innerHTML = `
+    <div class="app-modal recognition-guide-modal">
+      <div class="modal-header">
+        <h2>Guía para subir imágenes</h2>
+        <button type="button" class="secondary-button small-button" data-action="close-modal">✕</button>
+      </div>
+
+      <div class="recognition-guide-content">
+        <section>
+          <h3>Cómo sacar una buena foto</h3>
+
+          <p>
+            Para mejorar el reconocimiento, procura que la carta esté completa,
+            centrada, bien iluminada y enfocada.
+          </p>
+
+          <p>
+            Evita reflejos fuertes, fondos muy cargados y fotos donde aparezcan
+            varias cartas a la vez.
+          </p>
+
+          <p>
+            La colocación correcta de la carta es lo mas importante para un correcto reconocimiento.
+          </p>
+        </section>
+
+        <section>
+          <h3>Recomendación: card slider</h3>
+
+          <p>
+            Se recomienda usar un card slider para mantener la carta plana y centrada.
+          </p>
+
+          <img src="./assets/recognition-guide/1.jpeg" alt="Card slider" />
+        </section>
+
+        <section>
+          <h3>Ejemplos de fotos válidas</h3>
+          <p>Procura mantener mínimo margen vertical y que este bien centrada</p>
+
+          <div class="recognition-guide-grid">
+            <img src="./assets/recognition-guide/2.jpeg" alt="Foto válida 1" />
+            <img src="./assets/recognition-guide/3.jpeg" alt="Foto válida 2" />
+          </div>
+        </section>
+
+        <section>
+          <h3>Ejemplos de fotos inválidas</h3>
+          <p>Imágenes torcidas o con mucha/poca luz</p>
+
+          <div class="recognition-guide-grid">
+            <img src="./assets/recognition-guide/4.jpeg" alt="Foto inválida 1" />
+            <img src="./assets/recognition-guide/5.jpeg" alt="Foto inválida 2" />
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  openModal(overlay);
+
+  const handleCloseModal = () => closeModal(overlay);
+
+  overlay.querySelector("[data-action='close-modal']").addEventListener("click", handleCloseModal);
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      handleCloseModal();
+    }
   });
 }

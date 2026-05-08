@@ -55,7 +55,7 @@ body::before {
   flex-wrap: wrap;
 }
 
-/* BOTONES */
+/* BUTTONS */
 
 button {
   border: none;
@@ -151,7 +151,7 @@ button:disabled {
   max-width: 1200px;
 }
 
-/* FORMULARIOS */
+/* FORMS */
 
 .form {
   display: grid;
@@ -185,7 +185,7 @@ select:focus {
   width: auto;
 }
 
-/* MENSAJES */
+/* MESSAGES */
 
 .message {
   margin-top: 10px;
@@ -220,7 +220,7 @@ select:focus {
   color: #fbbf24;
 }
 
-/* HEADERS DE SECCIÓN */
+/* SECTION HEADERS */
 
 .section-header {
   display: flex;
@@ -240,7 +240,7 @@ select:focus {
   color: #9ca3af;
 }
 
-/* CARTAS / IMPRESIONES */
+/* CARDS + PRINTS */
 
 .card-grid {
   display: grid;
@@ -278,7 +278,7 @@ select:focus {
   color: #9ca3af;
 }
 
-/* COLECCIONES */
+/* COLLECTION */
 
 .collection-list {
   display: grid;
@@ -325,7 +325,7 @@ select:focus {
   flex-wrap: wrap;
 }
 
-/* DETALLE COLECCIÓN */
+/* COLLECTION DETAIL */
 
 .summary-grid {
   display: grid;
@@ -574,7 +574,7 @@ body.modal-open {
   color: #9ca3af;
 }
 
-/* RECONOCIMIENTO */
+/* RECOGNITION */
 
 .recognition-card-content {
   display: flex;
@@ -634,6 +634,50 @@ body.modal-open {
   margin: 2px 0;
   font-size: 12px;
   color: #9ca3af;
+}
+
+.recognition-guide-modal {
+  max-width: 900px;
+}
+
+.recognition-guide-content {
+  display: grid;
+  gap: 22px;
+}
+
+.recognition-guide-content section {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.recognition-guide-content section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.recognition-guide-content h3 {
+  margin: 0 0 8px 0;
+  color: #facc15;
+}
+
+.recognition-guide-content p {
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+.recognition-guide-content img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.recognition-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 /* AUTH */
@@ -795,7 +839,16 @@ button,
     grid-template-columns: 64px 1fr;
   }
 
-.collection-search-result img {
+  .collection-search-result img {
     width: 64px;
   }
+
+  .recognition-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recognition-guide-content img {
+    max-height: 280px;
+  }
+
 }
