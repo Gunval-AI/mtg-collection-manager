@@ -77,7 +77,7 @@ docker compose up --build
 
 ## Acceso
 
-* Local: http://localhost:8080/frontend/
+* Local (debe estar docker levantado): http://localhost:8080/frontend/
 * Railway: https://mtg-collection-manager-production.up.railway.app/frontend/
 
 ## Base de datos
