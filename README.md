@@ -31,6 +31,8 @@ O descargarlo como ZIP desde GitHub y descomprimirlo.
 
 ### Crear archivo `.env`
 
+Debes estar situado en la carpeta raiz del proyecto 
+
 En Linux / Mac:
 
 ```
@@ -47,13 +49,36 @@ copy .env.example .env
 
 ### Levantar el proyecto
 
+* Primera ejecución del proyecto:
+
 ```
+docker compose up --build
+```
+
+* Ejecuciones posteriores:
+
+```
+docker compose up
+```
+
+* Si se descarga una nueva versión del proyecto:
+
+```
+docker compose down
+docker compose up --build
+```
+
+Si además se quiere eliminar la base de datos y volver al estado incial:
+
+```
+docker compose down -v
 docker compose up --build
 ```
 
 ## Acceso
 
-* Frontend: http://localhost:8080/frontend/
+* Local: http://localhost:8080/frontend/
+* Railway: https://mtg-collection-manager-production.up.railway.app/frontend/
 
 ## Base de datos
 
@@ -70,14 +95,6 @@ Se inicializa automáticamente al levantar Docker:
 * Búsqueda de cartas e impresiones
 * Reconocimiento de cartas mediante imagen
 
-## Arquitectura
-
-El backend sigue una arquitectura por capas:
-
-* Controllers → gestionan las peticiones HTTP
-* Services → lógica de negocio
-* Repositories → acceso a base de datos
-* DTOs → transporte de datos
 
 ## Notas
 
@@ -92,3 +109,9 @@ El backend sigue una arquitectura por capas:
 3. Crear `.env`
 4. Ejecutar `docker compose up --build`
 5. Acceder a http://localhost:8080/frontend/
+
+## Ejemplos de uso
+
+* Ejemplos de busquedas: "Aang", "Donatello", "Fire", "Fuego", "Tunnel", "Ratas"...
+
+* En /test-images hay imagenes de prueba listas para ser utilizadas en el servicio de reconocimiento.
