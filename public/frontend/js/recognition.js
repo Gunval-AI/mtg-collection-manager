@@ -173,7 +173,7 @@ function renderMatchedResult(container, data, copyOptions) {
 
       <div class="recognition-card-content">
         <img 
-          src="${print.imageSmall || print.imageNormal || './assets/card-placeholder.png'}" 
+          src="${print.imageNormal || print.imageSmall || './assets/card-placeholder.png'}"
           alt="${card.nameEs || card.nameEn}" 
         />
 
@@ -245,7 +245,7 @@ function renderCandidateResults(container, data, copyOptions) {
         ${candidates.map((item, index) => `
           <div class="candidate-card" data-index="${index}">
             <img 
-              src="${item.print.imageSmall || item.print.imageNormal || './assets/card-placeholder.png'}" 
+              src="${item.print.imageNormal || item.print.imageSmall || './assets/card-placeholder.png'}" 
               alt="${item.card.nameEs || item.card.nameEn}"
             />
 

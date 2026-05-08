@@ -78,7 +78,7 @@ function renderPrintResults(container, prints) {
         class="clickable-print-image"
         data-action="open-print-detail"
         data-print-index="${index}"
-        src="${print.imagenSmall || print.imagenNormal || './assets/card-placeholder.png'}" 
+        src="${print.imagenNormal || print.imagenSmall || './assets/card-placeholder.png'}"
         alt="${print.nombreCarta}" 
       />
 
